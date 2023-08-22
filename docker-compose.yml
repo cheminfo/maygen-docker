@@ -1,0 +1,14 @@
+version: "2.2"
+services:
+  maygen:
+    build: ./docker
+    #image: ghcr.io/cheminfo/maygen-docker:head
+    restart: always
+    ulimits:
+      core: 0
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+    ports:
+      - 127.0.0.1:30822:30822

@@ -56,7 +56,6 @@ async function doGenerate(request, response) {
     const body = request.body;
     // because it is also the filename we want to avoid any bad tricks
     body.mf = new MF(body.mf).getInfo().mf.replace(/[^A-Za-z0-9]/g, '');
-    debug(tempDir)
     let flags = [];
     flags.push('-jar', 'MAYGEN-1.8.jar');
     flags.push('-f', body.mf);
@@ -74,7 +73,7 @@ async function doGenerate(request, response) {
 
     const resultFilename = join(tempDir, `${body.mf}.smi`)
     const smiles = readFileSync(resultFilename, 'utf8')
-    unlinkSync(resultFilename)
+    //    unlinkSync(resultFilename)
     const result = enhancedSmiles(smiles, body)
 
 
