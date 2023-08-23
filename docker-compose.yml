@@ -2,7 +2,7 @@ version: "2.2"
 services:
   maygen:
     #build: ./docker
-    image: ghcr.io/cheminfo/maygen-docker:head
+    image: ghcr.io/cheminfo/maygen-docker:1.1.0
     restart: always
     ulimits:
       core: 0
