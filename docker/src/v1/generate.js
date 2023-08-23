@@ -13,48 +13,48 @@ const { Molecule } = OCL;
 const JAVA = getJava();
 
 export default function generate(fastify) {
-  fastify.post(
-    '/v1/generate',
-    {
-      schema: {
-        summary: 'Generate structural isomers from a molecular formula',
-        description:
-          'Using MayGen we generate structural isomers from a molecular formula',
-        consumes: ['multipart/form-data'],
-        body: {
-          type: 'object',
-          properties: {
-            mf: {
-              description: 'Molecular formula',
-              type: 'string',
-            },
-            limit: {
-              description: 'Max number of entries',
-              type: 'number',
-              default: 1000,
-            },
-            idCode: {
-              description: 'Append openchemlib idCode',
-              type: 'boolean',
-            },
+  fastify.route({
+    url: '/v1/generate',
+    method: ['GET', 'POST'],
+    handler: doGenerate,
+    schema: {
+      summary: 'Generate structural isomers from a molecular formula',
+      description:
+        'Using MayGen we generate structural isomers from a molecular formula',
+      consumes: ['multipart/form-data'],
+      querystring: {
+        type: 'object',
+        properties: {
+          mf: {
+            description: 'Molecular formula',
+            type: 'string',
+          },
+          limit: {
+            description: 'Max number of entries',
+            type: 'number',
+            default: 1000,
+          },
+          idCode: {
+            description: 'Append openchemlib idCode',
+            type: 'boolean',
           },
         },
       },
-    },
-    doGenerate,
-  );
+    }
+  }
+  )
 }
 
 export async function doGenerate(request, response) {
+  const params = request.body || request.query;
   try {
     const tempDir = join(os.tmpdir(), 'maygen');
     mkdirSync(tempDir, { recursive: true });
-    const body = request.body;
     // because it is also the filename we want to avoid any bad tricks
-    body.mf = new MF(body.mf).getInfo().mf.replace(/[^A-Za-z0-9]/g, '');
+    params.mf = new MF(params.mf).getInfo().mf.replace(/[^A-Za-z0-9]/g, '');
     let flags = [];
     flags.push('-jar', 'MAYGEN-1.8.jar');
-    flags.push('-f', body.mf);
+    flags.push('-f', params.mf);
     flags.push('-o', tempDir);
     flags.push('-smi');
 
@@ -66,13 +66,13 @@ export async function doGenerate(request, response) {
     });
     info.time = Date.now() - start;
 
-    const resultFilename = join(tempDir, `${body.mf}.smi`);
+    const resultFilename = join(tempDir, `${params.mf}.smi`);
     const smiles = readFileSync(resultFilename, 'utf8')
       .split(/\r?\n/)
       .filter((line) => line);
 
     if (javaResult.error) {
-      if (smiles.length <= body.limit) {
+      if (smiles.length <= params.limit) {
         response.send({
           result: {},
           ...info,
@@ -86,7 +86,7 @@ export async function doGenerate(request, response) {
     }
 
     unlinkSync(resultFilename);
-    const result = enhancedSmiles(smiles, body, info);
+    const result = enhancedSmiles(smiles, params, info);
 
     response.send({ result });
   } catch (e) {
@@ -94,12 +94,12 @@ export async function doGenerate(request, response) {
   }
 }
 
-function enhancedSmiles(smiles, body, info) {
-  const { limit, idCode } = body;
+function enhancedSmiles(smiles, params, info) {
+  const { limit, idCode } = params;
   const results = {
     found: smiles.length,
     ...info,
-    mf: body.mf,
+    mf: params.mf,
     entries: [],
   };
   for (const line of smiles.slice(0, limit)) {
@@ -113,3 +113,4 @@ function enhancedSmiles(smiles, body, info) {
   }
   return results;
 }
+

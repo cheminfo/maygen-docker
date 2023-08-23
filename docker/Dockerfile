@@ -2,7 +2,7 @@ FROM node:20
 
 EXPOSE 30822
 
-RUN apt update
+RUN apt-get update
 RUN apt-get install -y openjdk-17-jdk
 
 RUN mkdir /node
