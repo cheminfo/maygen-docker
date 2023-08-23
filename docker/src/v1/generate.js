@@ -40,9 +40,8 @@ export default function generate(fastify) {
           },
         },
       },
-    }
-  }
-  )
+    },
+  });
 }
 
 export async function doGenerate(request, response) {
@@ -90,7 +89,11 @@ export async function doGenerate(request, response) {
 
     response.send(result);
   } catch (e) {
-    response.send({ result: [], log: e.toString(), status: `error: ${e.toString()}` });
+    response.send({
+      result: [],
+      log: e.toString(),
+      status: `error: ${e.toString()}`,
+    });
   }
 }
 
@@ -102,6 +105,9 @@ function enhancedSmiles(smiles, params, info) {
     mf: params.mf,
     result: [],
   };
+  if (smiles.length > limit) {
+    smiles.sort(() => Math.random() - 0.5);
+  }
   for (const line of smiles.slice(0, limit)) {
     const entry = {};
     entry.smiles = line;
@@ -113,4 +119,3 @@ function enhancedSmiles(smiles, params, info) {
   }
   return results;
 }
-
