@@ -113,6 +113,7 @@ function enhancedSmiles(smiles, params, info) {
     entry.smiles = line;
     if (idCode) {
       const molecule = Molecule.fromSmiles(line);
+      molecule.stripStereoInformation();
       entry.idCode = molecule.getIDCode();
     }
     results.result.push(entry);
