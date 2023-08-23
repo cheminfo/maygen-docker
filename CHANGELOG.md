@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/cheminfo/maygen-docker/compare/v1.0.0...v1.1.0) (2023-08-23)
+
+
+### Features
+
+* if over limit results we randomise the result ([ad34190](https://github.com/cheminfo/maygen-docker/commit/ad34190d05ff8fdc0ade08ecd5a0ad8113fdd5bf))
+
+
+### Bug Fixes
+
+* response should have status at the first level ([2079be0](https://github.com/cheminfo/maygen-docker/commit/2079be0176f04262cd4395d27685203edb8d8cb2))
+
 ## 1.0.0 (2023-08-23)
 
 
