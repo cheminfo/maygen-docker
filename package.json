@@ -1,6 +1,6 @@
 {
   "name": "maygen-docker",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "maygen docker web service",
   "private": true
 }
