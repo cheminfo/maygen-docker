@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/cheminfo/maygen-docker/compare/v1.1.0...v1.1.1) (2023-08-23)
+
+
+### Bug Fixes
+
+* remove stereoinformation ([fd0fe7a](https://github.com/cheminfo/maygen-docker/commit/fd0fe7aa40ede072c121f21bebadcf801ae4d1ea))
+
 ## [1.1.0](https://github.com/cheminfo/maygen-docker/compare/v1.0.0...v1.1.0) (2023-08-23)
 
 
