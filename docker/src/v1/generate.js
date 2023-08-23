@@ -3,18 +3,14 @@ import { mkdirSync, readFileSync, unlinkSync } from 'fs';
 import os from 'os';
 import { join } from 'path';
 
-import debugPkg from 'debug';
-import { MF } from 'mf-parser'
-import OCL from 'openchemlib/core.js'
+import { MF } from 'mf-parser';
+import OCL from 'openchemlib/core.js';
 
 import getJava from './utils/getJava.js';
 
-const { Molecule } = OCL
-
-const debug = debugPkg('generate');
+const { Molecule } = OCL;
 
 const JAVA = getJava();
-
 
 export default function generate(fastify) {
   fastify.post(
@@ -49,7 +45,7 @@ export default function generate(fastify) {
   );
 }
 
-async function doGenerate(request, response) {
+export async function doGenerate(request, response) {
   try {
     const tempDir = join(os.tmpdir(), 'maygen');
     mkdirSync(tempDir, { recursive: true });
@@ -60,22 +56,37 @@ async function doGenerate(request, response) {
     flags.push('-jar', 'MAYGEN-1.8.jar');
     flags.push('-f', body.mf);
     flags.push('-o', tempDir);
-    flags.push('-smi')
+    flags.push('-smi');
 
+    const info = {};
+    const start = Date.now();
     const javaResult = spawnSync(JAVA, flags, {
       encoding: 'utf-8',
-      timeout: 5000,
+      timeout: 2000,
     });
+    info.time = Date.now() - start;
+
+    const resultFilename = join(tempDir, `${body.mf}.smi`);
+    const smiles = readFileSync(resultFilename, 'utf8')
+      .split(/\r?\n/)
+      .filter((line) => line);
 
     if (javaResult.error) {
-      response.send({ result: {}, status: javaResult.error.toString() });
+      if (smiles.length <= body.limit) {
+        response.send({
+          result: {},
+          ...info,
+          status: javaResult.error.toString(),
+        });
+      } else {
+        info.status = 'Partial result';
+      }
+    } else {
+      info.status = 'OK';
     }
 
-    const resultFilename = join(tempDir, `${body.mf}.smi`)
-    const smiles = readFileSync(resultFilename, 'utf8')
-    //    unlinkSync(resultFilename)
-    const result = enhancedSmiles(smiles, body)
-
+    unlinkSync(resultFilename);
+    const result = enhancedSmiles(smiles, body, info);
 
     response.send({ result });
   } catch (e) {
@@ -83,25 +94,22 @@ async function doGenerate(request, response) {
   }
 }
 
-function enhancedSmiles(smiles, body = {}) {
-  const { limit, idCode } = body
-  const lines = smiles.split(/\r?\n/).filter(line => line)
+function enhancedSmiles(smiles, body, info) {
+  const { limit, idCode } = body;
   const results = {
-    found: lines.length,
-    status: 'OK',
+    found: smiles.length,
+    ...info,
     mf: body.mf,
     entries: [],
-  }
-  for (const line of lines.slice(0, limit)) {
-    const entry = {}
-    entry.smiles = line
+  };
+  for (const line of smiles.slice(0, limit)) {
+    const entry = {};
+    entry.smiles = line;
     if (idCode) {
       const molecule = Molecule.fromSmiles(line);
-      entry.idCode = molecule.getIDCode()
+      entry.idCode = molecule.getIDCode();
     }
-    results.entries.push(entry)
+    results.entries.push(entry);
   }
-  return results
-
-
+  return results;
 }

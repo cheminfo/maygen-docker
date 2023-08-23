@@ -2,11 +2,11 @@ import fastifyCors from '@fastify/cors';
 import fastifyMultipart from '@fastify/multipart';
 import fastifySensible from '@fastify/sensible';
 import fastifySwagger from '@fastify/swagger';
-import Fastify from 'fastify';
+import fastifyPkg from 'fastify';
 
 import v1 from './v1/v1.js';
 
-const fastify = Fastify({
+const fastify = fastifyPkg({
   logger: false,
 });
 
@@ -26,7 +26,8 @@ await fastify.register(fastifySwagger, {
   routePrefix: '/documentation',
   swagger: {
     info: {
-      title: 'Generate structural isomers from a molecular formula using MayGen',
+      title:
+        'Generate structural isomers from a molecular formula using MayGen',
       description: ``,
       version: '1.0.0',
     },
