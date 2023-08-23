@@ -74,7 +74,7 @@ export async function doGenerate(request, response) {
     if (javaResult.error) {
       if (smiles.length <= params.limit) {
         response.send({
-          result: {},
+          result: [],
           ...info,
           status: javaResult.error.toString(),
         });
@@ -88,9 +88,9 @@ export async function doGenerate(request, response) {
     unlinkSync(resultFilename);
     const result = enhancedSmiles(smiles, params, info);
 
-    response.send({ result });
+    response.send(result);
   } catch (e) {
-    response.send({ result: {}, log: e.toString() });
+    response.send({ result: [], log: e.toString(), status: `error: ${e.toString()}` });
   }
 }
 
@@ -100,7 +100,7 @@ function enhancedSmiles(smiles, params, info) {
     found: smiles.length,
     ...info,
     mf: params.mf,
-    entries: [],
+    result: [],
   };
   for (const line of smiles.slice(0, limit)) {
     const entry = {};
@@ -109,7 +109,7 @@ function enhancedSmiles(smiles, params, info) {
       const molecule = Molecule.fromSmiles(line);
       entry.idCode = molecule.getIDCode();
     }
-    results.entries.push(entry);
+    results.result.push(entry);
   }
   return results;
 }

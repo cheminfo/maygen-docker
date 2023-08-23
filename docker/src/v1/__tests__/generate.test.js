@@ -10,9 +10,9 @@ test('test', async () => {
     },
   };
   await doGenerate({ body: { mf: 'C10H20' } }, response);
-  expect(result.result.found).toBe(852);
-  expect(result.result.mf).toBe('C10H20');
-  expect(result.result.entries[0]).toStrictEqual({
+  expect(result.found).toBe(852);
+  expect(result.mf).toBe('C10H20');
+  expect(result.result[0]).toStrictEqual({
     smiles: 'C=C(C(C)(C)C)C(C)(C)C',
   });
 });
