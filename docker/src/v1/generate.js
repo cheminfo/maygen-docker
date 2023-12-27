@@ -34,6 +34,15 @@ export default function generate(fastify) {
             type: 'number',
             default: 1000,
           },
+          timeout: {
+            description: 'Max number of seconds (must be under 30)',
+            type: 'number',
+            default: 2,
+          },
+          fragmentCode: {
+            description: 'Substructure search to filter results',
+            type: 'string',
+          },
           idCode: {
             description: 'Append openchemlib idCode',
             type: 'boolean',
@@ -61,7 +70,7 @@ export async function doGenerate(request, response) {
     const start = Date.now();
     const javaResult = spawnSync(JAVA, flags, {
       encoding: 'utf-8',
-      timeout: 2000,
+      timeout: Math.max(Math.min((params.timeout || 2) * 1000, 30000), 2000),
     });
     info.time = Date.now() - start;
 
@@ -98,7 +107,14 @@ export async function doGenerate(request, response) {
 }
 
 function enhancedSmiles(smiles, params, info) {
-  const { limit, idCode } = params;
+  const { limit, idCode, fragmentCode } = params;
+  let searcher = null;
+  let fragment = null;
+  if (fragmentCode) {
+    fragment = Molecule.fromIDCode(fragmentCode);
+    searcher = new OCL.SSSearcher();
+    searcher.setFragment(fragment);
+  }
   const results = {
     found: smiles.length,
     ...info,
@@ -116,8 +132,12 @@ function enhancedSmiles(smiles, params, info) {
     uniqueSmiles[line] = true;
     const entry = {};
     entry.smiles = line;
-    if (idCode) {
+    if (idCode || fragment) {
       const molecule = Molecule.fromSmiles(line);
+      if (searcher) {
+        searcher.setMolecule(molecule);
+        if (!searcher.isFragmentInMolecule()) continue;
+      }
       molecule.stripStereoInformation();
       entry.idCode = molecule.getIDCode();
       if (uniqueIDCodes[entry.idCode]) continue;
