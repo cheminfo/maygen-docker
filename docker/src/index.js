@@ -45,6 +45,7 @@ v1(fastify);
 await fastify.ready();
 fastify.swagger();
 
+console.log('http://localhost:30822')
 fastify.listen({ port: 30822, host: '0.0.0.0' }, (err) => {
   if (err) {
     fastify.log.error(err);

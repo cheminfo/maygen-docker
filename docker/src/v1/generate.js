@@ -108,13 +108,20 @@ function enhancedSmiles(smiles, params, info) {
   if (smiles.length > limit) {
     smiles.sort(() => Math.random() - 0.5);
   }
+  // apparently this library can return twice the same molecule we check ourself
+  const uniqueSmiles = {};
+  const uniqueIDCodes = {}
   for (const line of smiles.slice(0, limit)) {
+    if (uniqueSmiles[line]) continue;
+    uniqueSmiles[line] = true;
     const entry = {};
     entry.smiles = line;
     if (idCode) {
       const molecule = Molecule.fromSmiles(line);
       molecule.stripStereoInformation();
       entry.idCode = molecule.getIDCode();
+      if (uniqueIDCodes[entry.idCode]) continue;
+      uniqueIDCodes[entry.idCode] = true;
     }
     results.result.push(entry);
   }
