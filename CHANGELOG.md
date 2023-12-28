@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/cheminfo/maygen-docker/compare/v1.1.1...v1.2.0) (2023-12-28)
+
+
+### Features
+
+* add structure filtering ([93f7361](https://github.com/cheminfo/maygen-docker/commit/93f736162468809ea9b327c4545b4553069a9ec4))
+
+
+### Bug Fixes
+
+* ensure unicity ([5f0bdf7](https://github.com/cheminfo/maygen-docker/commit/5f0bdf71cbe524fbccef0ca2009dd03174226e47))
+
 ## [1.1.1](https://github.com/cheminfo/maygen-docker/compare/v1.1.0...v1.1.1) (2023-08-23)
 
 
